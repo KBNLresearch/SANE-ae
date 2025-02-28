@@ -11,7 +11,6 @@ import os
 import shutil
 import argparse
 import logging
-import hashlib
 import tarfile
 import json
 import subprocess as sub
@@ -48,23 +47,6 @@ def errorExit(msg):
     sys.exit(1)
 
 
-def generate_file_hash(fileIn):
-    """Generate cryptographic hash of file"""
-
-    # fileIn is read in chunks to ensure it will work with (very) large files as well
-    # Adapted from: http://stackoverflow.com/a/1131255/1209004
-
-    blocksize = 2**20
-    m = hashlib.md5()
-    with open(fileIn, "rb") as f:
-        while True:
-            buf = f.read(blocksize)
-            if not buf:
-                break
-            m.update(buf)
-    return m.hexdigest()
-
-
 def writeInfo(fileIn, fileOut):
     """Write file info to Json"""
 
@@ -74,6 +56,12 @@ def writeInfo(fileIn, fileOut):
     infoDict = {}
     infoDict["fileName"] = os.path.basename(fileIn)
     infoDict["filePath"] = fileIn
+
+    fileName, fileExtension = os.path.splitext(fileIn)
+    if fileExtension == ".epub":
+        infoDict["format"] = "epub"
+    elif fileExtension == ".pdf":
+        infoDict["format"] = "pdf"
 
     # Save contents as JSON file
     try:
@@ -97,6 +85,7 @@ def runRwp(rwp, fileIn, fileOut):
     args.append('manifest')
     args.append('--infer-a11y')
     args.append('split')
+    args.append('--infer-page-count')
     args.append(fileIn)
 
     try:
@@ -169,11 +158,16 @@ def main():
     # List with Ebooks that are to be processed
     ebooksIn = []
 
-    # Recursively scan pathIn for files ending with ".epub" or ".pdf"
+    # List with Ebook file extensions
+    # For now exclude PDF because rwp hangs on most PDF files!
+    # fExtensions = [".epub", ".pdf"]
+    fExtensions = [".epub"]
+
+    # Recursively scan pathIn for Ebook files
     for path, dirs, files in os.walk(pathIn):
         for name in (files):
             fileName, fileExtension = os.path.splitext(name)
-            if fileExtension in [".epub", ".pdf"]:
+            if fileExtension in fExtensions:
                 ebooksIn.append(os.path.join(path, name))
 
     noEbooks = len(ebooksIn)
@@ -194,12 +188,12 @@ def main():
     for ebook in ebooksIn:
 
         # Construct TAR output paths
-        fName = os.path.basename(ebook)
+        fPath, fName = os.path.split(ebook)
+        dirIn = os.path.basename(fPath)
         logging.info('*****')
-        logging.info(('file {} /{}').format(str(counter), str(noEbooks)))
+        logging.info(('file {}/{}').format(str(counter), str(noEbooks)))
         logging.info(fName)
-        fHash = generate_file_hash(ebook)
-        tarPath = os.path.join(fHash)
+        tarPath = os.path.join(dirIn)
         tarOutInfo = os.path.join(tarPath, nameInfo)
         tarOutRwp = os.path.join(tarPath, nameOutRwp)
 
