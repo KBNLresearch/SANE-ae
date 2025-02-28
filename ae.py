@@ -161,8 +161,7 @@ def main():
     logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
                         datefmt='%m/%d/%Y %I:%M:%S %p',
                         handlers=[logging.FileHandler(logOut),
-                                  logging.StreamHandler()
-                        ],
+                                  logging.StreamHandler()],
                         level=logging.DEBUG)
 
     logging.info('### SESSION START')
