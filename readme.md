@@ -1,6 +1,8 @@
 ## Contents of this repo
 
-This repo contains a script that is meant to be used within the SANE environment for extracting accessibility info from e-books. It wraps around the *rwp* tool that is part of the [Readium Go Toolkit](https://github.com/readium/go-toolkit). A Linux binary of *rwp* is included in this repo. Supported formats are EPUB and PDF.
+This repo contains a script that is meant to be used within the SANE environment for extracting accessibility info from e-books. It wraps around the *rwp* tool that is part of the [Readium Go Toolkit](https://github.com/readium/go-toolkit). A Linux binary of *rwp* is included in this repo.
+
+Currently only EPUB files (identified by the ".epub" file extension) are supported! Although the *rwp* tool also supports PDF, preliminary tests resulted in various problems, so PDF files are ignored in this version.
 
 ## ae.py
 
@@ -9,13 +11,14 @@ Get accessibility info from all Ebooks in a directory tree using Readium Go's Rw
 ## Command-line syntax
 
 ```
-python3 ae.py pathIn pathOut
+python3 ae.py pathIn pathOut --prefixOut PREFIXOUT
 ```
 
 With:
 
 - pathIn: input directory
 - pathOut: output directory
+- PREFIXOUT: optional output prefix (default: "sane-ae")
 
 Example:
 
@@ -25,10 +28,10 @@ python3 ae.py /home/johan/kb/epub-accessibility/eregalerij/ .
 
 ## Output
 
-- analyzer.tar: TAR archive with output
-- analyzer.log: log file
+- sane-ae.tar: TAR archive with output
+- sane-ae.log: log file
 
-The output TAR contains one directory for each processed file. The name of each directory is the file's MD5 hash. If the input directory tree contains multiple instances of the same file (as per its hash), only the first occurrence is included in the output TAR. Each directory contains the following files:
+The output TAR contains one directory for each processed file. The name of each directory corresponds to the name of the direct parent directory of the imput file. Each directory contains the following files:
 
-- fileinfo.json: JSON file with name and full path of each Ebook file
-- rwp.json: JSON file with output of rwp tool
+- fileinfo.json: JSON file with, for each Ebook file, its name, full file path, the file format, the full rwp command line and the rwp exit status 
+- rwp.json: JSON file with output of thev rwp tool
