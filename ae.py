@@ -92,6 +92,9 @@ def runRwp(rwp, fileIn, fileOut):
     args.append('--infer-page-count')
     args.append(fileIn)
 
+    # Command line as string (used for logging purposes only)
+    cmdStr = " ".join(args)
+
     try:
         p = sub.Popen(args,
                       stdout=sub.PIPE,
@@ -115,6 +118,7 @@ def runRwp(rwp, fileIn, fileOut):
     # All results to dictionary
     dictOut = {}
     dictOut["status"] = exitStatus
+    dictOut["cmdStr"] = cmdStr
 
     return dictOut
 
@@ -225,7 +229,9 @@ def main():
                     logging.warning('failed running Rwp')
                 # Remove temp file
                 os.remove(rwpOutTemp)
-                msg = 'rwp exit code: ' + str(rwpResult["status"])
+                msg = ('rwp command: {}').format(str(rwpResult["cmdStr"]))
+                logging.info(msg)
+                msg = ('rwp exit code: {}').format(str(rwpResult["status"]))
                 logging.info(msg)
             else:
                 logging.warning('TAR path already exists, skipping')
