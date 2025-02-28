@@ -188,12 +188,21 @@ def main():
     nameInfo = "fileinfo.json"
     nameOutRwp = "rwp.json"
 
+    # List with all directory paths in TAR
+    tarDirs = []
+
     try:
         with tarfile.open(tarOut, "r") as tf:
             # List of all current paths inside TAR
-            tarPaths = tf.getnames()
+            tarFilePaths = tf.getnames()
+            for fPath in tarFilePaths:
+                tPath, tName = os.path.split(fPath)
+                tarDirs.append(tPath)
     except IOError:
-        tarPaths = []
+        tarDirs = []
+
+    # Remove duplicates
+    tarDirs = list(dict.fromkeys(tarDirs))
 
     counter = 1
 
@@ -205,9 +214,10 @@ def main():
         logging.info('*****')
         logging.info(('file {}/{}').format(str(counter), str(noEbooks)))
         logging.info(fName)
-        tarPath = os.path.join(dirIn)
-        tarOutInfo = os.path.join(tarPath, nameInfo)
-        tarOutRwp = os.path.join(tarPath, nameOutRwp)
+        tarDir = os.path.join(dirIn)
+
+        tarOutInfo = os.path.join(tarDir, nameInfo)
+        tarOutRwp = os.path.join(tarDir, nameOutRwp)
 
         # Open TAR archive
         with tarfile.open(tarOut, "a") as tf:
@@ -216,12 +226,12 @@ def main():
             # Only process current file if path doesn't already exist
             # This also means duplicates of already processed files will
             # be skipped!
-            if tarPath not in tarPaths:
+            if tarDir not in tarDirs:
                 # Run Rwp
                 rwpResult = runRwp(rwp, ebook, rwpOutTemp)
                 if rwpResult["status"] in [0, 1]:
                     tf.add(rwpOutTemp, arcname=tarOutRwp)
-                    tarPaths.append(tarPath)
+                    tarDirs.append(tarDir)
                     rwpCommand = rwpResult["cmdStr"]
                     rwpStatus = rwpResult["status"]
                 else:
