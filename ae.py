@@ -4,6 +4,10 @@ Get accessibility info from all EPUB and PDF files in a directory tree using
 Readium Go's Rwp tool.
 Output is wrapped in a TAR file, with file info in separate JSON as
 Rwp doesn't report this directly.
+
+Code assumes a flat directory structure, where the input dir contains 1 level
+of child dirs that each contain one Ebook.
+
 """
 
 import sys
