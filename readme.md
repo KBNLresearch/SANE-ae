@@ -8,6 +8,20 @@ Currently only EPUB files (identified by the ".epub" file extension) are support
 
 Get accessibility info from all Ebooks in a directory tree using Readium Go's Rwp tool. Output is wrapped in a TAR file, with file info in separate JSON as Rwp doesn't report this directly.
 
+## Input directory structure
+
+The script assumes a flat directory structure, where the input dir contains 1 level of child directories, that each contain one Ebook. Here's an example:
+
+```
+./dirIn
+├── IP1523369858048
+│   └── 20161227153031_9789400403178.epub
+├── IP1564040668928
+│   └── 20190627233027_9789029582179.epub
+└── IP1700049667584
+    └── 20221207163015_9789044934458.epub
+```
+
 ## Command-line syntax
 
 ```
