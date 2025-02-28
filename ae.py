@@ -51,7 +51,7 @@ def errorExit(msg):
     sys.exit(1)
 
 
-def writeInfo(fileIn, fileOut):
+def writeInfo(fileIn, rwpCommand, rwpStatus, fileOut):
     """Write file info to Json"""
 
     success = True
@@ -66,6 +66,9 @@ def writeInfo(fileIn, fileOut):
         infoDict["format"] = "epub"
     elif fileExtension == ".pdf":
         infoDict["format"] = "pdf"
+
+    infoDict["rwpCommand"] = rwpCommand
+    infoDict["rwpStatus"] = rwpStatus
 
     # Save contents as JSON file
     try:
@@ -208,30 +211,34 @@ def main():
 
         # Open TAR archive
         with tarfile.open(tarOut, "a") as tf:
+            rwpCommand = ""
+            rwpStatus = ""
             # Only process current file if path doesn't already exist
             # This also means duplicates of already processed files will
             # be skipped!
             if tarPath not in tarPaths:
+                # Run Rwp
+                rwpResult = runRwp(rwp, ebook, rwpOutTemp)
+                if rwpResult["status"] in [0, 1]:
+                    tf.add(rwpOutTemp, arcname=tarOutRwp)
+                    tarPaths.append(tarPath)
+                    rwpCommand = rwpResult["cmdStr"]
+                    rwpStatus = rwpResult["status"]
+                else:
+                    logging.warning('failed running Rwp')
+                # Remove temp file
+                os.remove(rwpOutTemp)
                 # Write file info
-                infoSuccess = writeInfo(ebook, fileInfoTemp)
+                infoSuccess = writeInfo(ebook, rwpCommand, rwpStatus, fileInfoTemp)
                 if infoSuccess:
                     tf.add(fileInfoTemp, arcname=tarOutInfo)
                 else:
                     logging.warning('failed writing file info')
                 # Remove temp file
                 os.remove(fileInfoTemp)
-                # Run Rwp
-                rwpResult = runRwp(rwp, ebook, rwpOutTemp)
-                if rwpResult["status"] in [0, 1]:
-                    tf.add(rwpOutTemp, arcname=tarOutRwp)
-                    tarPaths.append(tarPath)
-                else:
-                    logging.warning('failed running Rwp')
-                # Remove temp file
-                os.remove(rwpOutTemp)
-                msg = ('rwp command: {}').format(str(rwpResult["cmdStr"]))
+                msg = ('rwp command: {}').format(rwpCommand)
                 logging.info(msg)
-                msg = ('rwp exit code: {}').format(str(rwpResult["status"]))
+                msg = ('rwp exit code: {}').format(str(rwpStatus))
                 logging.info(msg)
             else:
                 logging.warning('TAR path already exists, skipping')
