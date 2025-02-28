@@ -212,7 +212,10 @@ def main():
         # TODO: this currently uses the name of the direct parent dir of each
         # Ebook. This works fine for flat input directory structures, but for
         # nested structures duplicate names are possible, which could 
-        # result in unexpected behaviour! 
+        # result in unexpected behaviour!
+        #
+        # Also, if an input directory contains more than one Ebook, only the
+        # first one will be processed, and any subsequent files are skipped.
         fPath, fName = os.path.split(ebook)
         dirIn = os.path.basename(fPath)
         logging.info('*****')
