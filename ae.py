@@ -209,6 +209,10 @@ def main():
     for ebook in ebooksIn:
 
         # Construct TAR output paths
+        # TODO: this currently uses the name of the direct parent dir of each
+        # Ebook. This works fine for flat input directory structures, but for
+        # nested structures duplicate names are possible, which could 
+        # result in unexpected behaviour! 
         fPath, fName = os.path.split(ebook)
         dirIn = os.path.basename(fPath)
         logging.info('*****')
