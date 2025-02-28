@@ -29,6 +29,10 @@ def parseCommandLine():
                         action="store",
                         type=str,
                         help="output directory")
+    PARSER.add_argument('--prefixOut', '-p',
+                        action="store",
+                        default="sane-ae",
+                        help="output prefix")
     args = PARSER.parse_args()
 
     return args
@@ -103,7 +107,6 @@ def runRwp(rwp, fileIn, fileOut):
         with open(fileOut, "w", encoding="utf-8") as fOut:
             fOut.write(stdout)
 
-
     except Exception:
         # I don't even want to to start thinking how one might end up here ...
         exitStatus = -99
@@ -136,10 +139,12 @@ def main():
     pathIn = os.path.abspath(args.pathIn)
     # Output path
     pathOut = os.path.abspath(args.pathOut)
+    # Output prefix
+    prefixOut = args.prefixOut
 
     # Output files
-    tarOut = os.path.join(pathOut, 'analyzer.tar')
-    logOut = os.path.join(pathOut, 'analyzer.log')
+    tarOut = os.path.join(pathOut, ("{}.tar").format(prefixOut))
+    logOut = os.path.join(pathOut, ("{}.log").format(prefixOut))
 
     # Set up logging config (stderr + file)
     logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
@@ -226,6 +231,7 @@ def main():
                 logging.warning('TAR path already exists, skipping')
 
         counter += 1
+
 
 if __name__ == "__main__":
     main()
