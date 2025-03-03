@@ -106,6 +106,7 @@ def runRwp(rwp, fileIn, fileOut):
     args.append('split')
     args.append('--infer-page-count')
     args.append('-i')
+    args.append('  ')
     args.append(fileIn)
 
     # Command line as string (used for logging purposes only)
