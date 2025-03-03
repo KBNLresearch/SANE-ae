@@ -4,7 +4,7 @@ This repo contains a script that is meant to be used within the SANE environment
 
 Currently only EPUB files (identified by the ".epub" file extension) are supported! Although the *rwp* tool also supports PDF, preliminary tests resulted in various problems, so PDF files are ignored in this version.
 
-## ae.py
+## script.py
 
 Get accessibility info from all Ebooks in a directory tree using Readium Go's Rwp tool. Output is wrapped in a TAR file, with file info in separate JSON as Rwp doesn't report this directly.
 
@@ -25,19 +25,22 @@ The script assumes a flat directory structure, where the input dir contains 1 le
 ## Command-line syntax
 
 ```
-python3 ae.py pathIn pathOut --prefixOut PREFIXOUT
+python3 script.py [-h] -i DIRIN -o DIROUT -t DIRTEMP
+                 [-p PREFIXOUT]
+
 ```
 
 With:
 
-- pathIn: input directory
-- pathOut: output directory
+- DIRIN: input directory
+- DIROUT: output directory
+- DIRTEMP: temporary file directory
 - PREFIXOUT: optional output prefix (default: "sane-ae")
 
 Example:
 
 ```
-python3 ae.py /home/johan/kb/epub-accessibility/eregalerij/ .
+python3 script.py -i ./SANE-AE-Sampleset -o ./testOut -t ./testTemp
 ```
 
 ## Output
