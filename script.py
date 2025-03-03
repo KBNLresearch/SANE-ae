@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 """
-Get accessibility info from all EPUB and PDF files in a directory tree using 
+Get accessibility info from all EPUB files in a directory tree using 
 Readium Go's Rwp tool.
 Output is wrapped in a TAR file, with file info in separate JSON as
 Rwp doesn't report this directly.
@@ -63,7 +63,7 @@ def errorExit(msg):
     sys.exit(1)
 
 
-def writeInfo(fileIn, rwpCommand, rwpStatus, fileOut):
+def writeInfo(fileIn, rwpCommand, rwpStatus, rwpVersion, fileOut):
     """Write file info to Json"""
 
     success = True
@@ -72,6 +72,7 @@ def writeInfo(fileIn, rwpCommand, rwpStatus, fileOut):
     infoDict = {}
     infoDict["fileName"] = os.path.basename(fileIn)
     infoDict["filePath"] = fileIn
+    infoDict["rwpVersion"] = rwpVersion
 
     fileName, fileExtension = os.path.splitext(fileIn)
     if fileExtension == ".epub":
@@ -91,6 +92,42 @@ def writeInfo(fileIn, rwpCommand, rwpStatus, fileOut):
         success = False
 
     return success
+
+
+def getRwpVersion(rwp):
+    """Get Rwp version string"""
+
+    # This flag defines how subprocesses are executed 
+    shellFlag = False
+
+    # Arguments
+    args = [rwp]
+    args.append('--version')
+
+    try:
+        p = sub.Popen(args,
+                      stdout=sub.PIPE,
+                      stderr=sub.PIPE,
+                      shell=shellFlag,
+                      universal_newlines=True)
+        stdout, stderr = p.communicate()
+        exitStatus = p.poll()
+
+        if exitStatus not in [0]:
+            printWarning("rwp exit status was " + str(exitStatus))
+
+    except Exception:
+        # I don't even want to to start thinking how one might end up here ...
+        exitStatus = -99
+        printWarning("Exception while running rwp")
+        stdout = ""
+
+    # All results to dictionary
+    dictOut = {}
+    dictOut["status"] = exitStatus
+    dictOut["versionStr"] = stdout.strip()
+
+    return dictOut
 
 
 def runRwp(rwp, fileIn, fileOut):
@@ -183,6 +220,9 @@ def main():
     fileInfoTemp = os.path.join(pathTemp, 'fileinfotemp.json')
     rwpOutTemp = os.path.join(pathTemp, 'rwptemp.json')
 
+    # Get rwp version string
+    rwpVersion = getRwpVersion(rwp)["versionStr"]
+
     # List with Ebooks that are to be processed
     ebooksIn = []
 
@@ -262,7 +302,7 @@ def main():
                 # Remove temp file
                 os.remove(rwpOutTemp)
                 # Write file info
-                infoSuccess = writeInfo(ebook, rwpCommand, rwpStatus, fileInfoTemp)
+                infoSuccess = writeInfo(ebook, rwpCommand, rwpStatus, rwpVersion, fileInfoTemp)
                 if infoSuccess:
                     tf.add(fileInfoTemp, arcname=tarOutInfo)
                 else:

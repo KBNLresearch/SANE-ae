@@ -50,5 +50,5 @@ python3 script.py -i ./SANE-AE-Sampleset -o ./testOut -t ./testTemp
 
 The output TAR contains one directory for each processed file. The name of each directory corresponds to the name of the direct parent directory of the imput file. Each directory contains the following files:
 
-- fileinfo.json: JSON file with, for each Ebook file, its name, full file path, the file format, the full rwp command line and the rwp exit status 
-- rwp.json: JSON file with output of thev rwp tool
+- fileinfo.json: JSON file with, for each Ebook file, its name, full file path, the file format, the rwp version string, the full rwp command line and the rwp exit status 
+- rwp.json: JSON file with output of the rwp tool
