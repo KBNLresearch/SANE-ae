@@ -19,20 +19,28 @@ import tarfile
 import json
 import subprocess as sub
 
+# Create argument parser
+PARSER = argparse.ArgumentParser(
+                                    description="Simple wrapper for Readium Go Rwp")
+
 def parseCommandLine():
     """Parse command line arguments."""
 
-    PARSER = argparse.ArgumentParser(
-                                     description="Simple wrapper for Readium Go Rwp")
-
-    PARSER.add_argument("pathIn",
+    PARSER.add_argument('--dirIn','-i',
                         action="store",
                         type=str,
-                        help="input directory")
-    PARSER.add_argument("pathOut",
+                        help="input directory",
+                        required=True)
+    PARSER.add_argument('--dirOut', '-o',
                         action="store",
                         type=str,
-                        help="output directory")
+                        help="output directory",
+                        required=True)
+    PARSER.add_argument('--dirTemp', '-t',
+                        action="store",
+                        type=str,
+                        help="temporary directory",
+                        required=True)
     PARSER.add_argument('--prefixOut', '-p',
                         action="store",
                         default="sane-ae",
@@ -148,9 +156,12 @@ def main():
     args = parseCommandLine()
 
     # Input path
-    pathIn = os.path.abspath(args.pathIn)
+    pathIn = os.path.abspath(args.dirIn)
     # Output path
-    pathOut = os.path.abspath(args.pathOut)
+    pathOut = os.path.abspath(args.dirOut)
+    # Temp path
+    pathTemp = os.path.abspath(args.dirTemp)
+
     # Output prefix
     prefixOut = args.prefixOut
 
@@ -168,8 +179,8 @@ def main():
     logging.info('### SESSION START')
 
     # Temporary output files file info and Rwp
-    fileInfoTemp = os.path.join(pathOut, 'fileinfotemp.json')
-    rwpOutTemp = os.path.join(pathOut, 'rwptemp.json')
+    fileInfoTemp = os.path.join(pathTemp, 'fileinfotemp.json')
+    rwpOutTemp = os.path.join(pathTemp, 'rwptemp.json')
 
     # List with Ebooks that are to be processed
     ebooksIn = []
